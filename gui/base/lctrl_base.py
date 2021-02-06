@@ -1,14 +1,19 @@
 import wx
 import wx.lib.scrolledpanel
-import wx.lib.mixins.listctrl as listmix
+import wx.lib.mixins.listctrl as mixin
 
 
-class ViewBase(wx.ListCtrl, listmix.TextEditMixin, listmix.ListRowHighlighter):
-    def __init__(self, parent, editable=False, checkboxes=False, *args, **kwargs):
+class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
+    def __init__(self, parent, editable=False, checkboxes=False,
+                 *args, **kwargs):
         super().__init__(parent, id=wx.ID_ANY,
-                         style=wx.LC_REPORT | wx.LC_HRULES | wx.LC_VRULES | wx.BORDER_NONE, *args, **kwargs)
+                         style=wx.LC_REPORT
+                               | wx.LC_HRULES
+                               | wx.LC_VRULES
+                               | wx.BORDER_NONE,
+                         *args, **kwargs)
         if editable:
-            listmix.TextEditMixin.__init__(self)
+            mixin.TextEditMixin.__init__(self)
 
         self._row_index = 0
         self._editable = editable
@@ -34,7 +39,7 @@ class ViewBase(wx.ListCtrl, listmix.TextEditMixin, listmix.ListRowHighlighter):
 
     def OpenEditor(self, col, row):
         if col == self.GetColumnCount() - 1:
-            listmix.TextEditMixin.OpenEditor(self, col, row)
+            mixin.TextEditMixin.OpenEditor(self, col, row)
         elif self._checkboxes and col == 0:
             self.CheckItem(row, True)
 
@@ -62,7 +67,8 @@ class ViewBase(wx.ListCtrl, listmix.TextEditMixin, listmix.ListRowHighlighter):
                 self.SetItem(self._row_index, x + 1, str(''))
         if check:
             if not item['check']:
-                self.SetItemBackgroundColour(self._row_index, wx.Colour(0xEF, 0x86, 0x86))
+                self.SetItemBackgroundColour(self._row_index,
+                                             wx.Colour(0xEF, 0x86, 0x86))
 
         self._row_index += 1
 
@@ -73,9 +79,11 @@ class ViewBase(wx.ListCtrl, listmix.TextEditMixin, listmix.ListRowHighlighter):
     def set_cols(self, cols: dict, redraw: bool = False):
         self._cols = [*cols.keys()]
         names = [*cols.values()]
-        if redraw: self.DeleteAllColumns()
+        if redraw:
+            self.DeleteAllColumns()
         for x in range(len(cols)):
             if names[x] == 'HIDDEN':
                 self.InsertColumn(x + 1, names[x], width=0)
             else:
-                self.InsertColumn(x + 1, names[x], width=len(names[x]) * 25, format=wx.LIST_FORMAT_RIGHT)
+                self.InsertColumn(x + 1, names[x], width=len(names[x]) * 25,
+                                  format=wx.LIST_FORMAT_RIGHT)

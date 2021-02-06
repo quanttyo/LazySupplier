@@ -28,7 +28,7 @@ class Pane(wx.Panel):
         self.SetMinSize(size)
 
         self.SetBackgroundColour(wx.WHITE)
-        self.mainFrame = gui.main_frame.MainFrame.getInstance()
+        self.mainFrame = gui.main_frame.MainFrame.get_instance()
         #wx.PostEvent(self.mainFrame, Message(obj=self))
         self.st = wx.StaticText(self, id=1, label='Info Pane!', size=wx.DefaultSize, style =0, name='statictext')
 

@@ -11,7 +11,9 @@ class FitMultiSwitch(wx.aui.AuiNotebook):
         self.splitter = wx.SplitterWindow(self, style=wx.SP_LIVE_UPDATE)
         self.close_button_active_flag = self.GetWindowStyleFlag()
         self.close_button_inactive_flag = self.close_button_active_flag & ~(
-                wx.aui.AUI_NB_CLOSE_BUTTON | wx.aui.AUI_NB_CLOSE_ON_ACTIVE_TAB | wx.aui.AUI_NB_CLOSE_ON_ALL_TABS)
+                wx.aui.AUI_NB_CLOSE_BUTTON
+                | wx.aui.AUI_NB_CLOSE_ON_ACTIVE_TAB
+                | wx.aui.AUI_NB_CLOSE_ON_ALL_TABS)
         self.SetWindowStyle(self.close_button_inactive_flag)
         self.SetArtProvider(wx.aui.AuiSimpleTabArt())
         self.SetBackgroundColour(parent.GetBackgroundColour())
@@ -26,7 +28,8 @@ class FitMultiSwitch(wx.aui.AuiNotebook):
         self.SetSelection(pos)
 
     def add_tab2(self):
-        self.splitter.SplitHorizontally(CustomToolBar(self.splitter), SelectedItems(self.splitter), 25)
+        self.splitter.SplitHorizontally(CustomToolBar(self.splitter),
+                                        SelectedItems(self.splitter), 25)
         self.splitter.SetMinimumPaneSize(25)
         self.splitter.SetSashInvisible(True)
         pos = self.GetPageCount()

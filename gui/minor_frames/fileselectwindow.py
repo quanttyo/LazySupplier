@@ -7,26 +7,32 @@ from gui.base.lctrl_base import ViewBase
 from data.db.storage import queries
 from gui.menus.main_toolbar import CustomToolBar
 
-keywords = {'brand': 'Бренд', 'article': 'Артикул ИМТ', 'color': 'Артикул Цвета', 'size': 'Размер', 'item': 'Предмет',
-            'gender': 'Пол', 'quantity': 'Количество', 'price': 'Розничная цена RU', 'country': 'Страна',
+keywords = {'brand': 'Бренд', 'article': 'Артикул ИМТ',
+            'color': 'Артикул Цвета', 'size': 'Размер', 'item': 'Предмет',
+            'gender': 'Пол', 'quantity': 'Количество',
+            'price': 'Розничная цена RU', 'country': 'Страна',
             'barcode': 'Баркод'}
 
 
 class Data:
     __data = []
 
-    def __init__(self, data_from_table: xlrd = None, keyword: dict = None) -> None:
+    def __init__(self, data_from_table: xlrd = None,
+                 keyword: dict = None) -> None:
         if data_from_table and keyword:
             self.keywords = keyword
             self.__import_data_xlrd(data_from_table)
 
     def __import_data_xlrd(self, imported: xlrd) -> None:
-        self.data = xlrd.open_workbook(imported.name).sheet_by_index(0)
+        data = xlrd.open_workbook(imported.name).sheet_by_index(0)
         self.indices = self.__get_indices(self.data, self.keywords)
-        for x in range(1, self.data.nrows):
+        for x in range(1, data.nrows):
             temp_dict = {}
             for val in self.indices:
-                temp_dict.update({self.indices[val]: self.data.row_values(x, start_colx=val, end_colx=val + 1)[0]})
+                temp_dict.update({self.indices[val]:
+                                      data.row_values(x,
+                                                      start_colx=val,
+                                                      end_colx=val + 1)[0]})
             self.__data.append(temp_dict)
 
     def __get_indices(self, data: xlrd.sheet, kwargs: dict) -> dict:
@@ -41,6 +47,7 @@ class Data:
     def __write(self):
         pass
 
+    @property
     def verify(self):
         import threading
         t = threading.Thread(target=self.__thread_verify())

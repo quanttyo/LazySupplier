@@ -20,7 +20,8 @@ class MainMenuBar(wx.MenuBar):
 
     def filemenu(self, event):
         with wx.FileDialog(self, 'Open', wildcard="XYZ files (*.xls|*.xls",
-                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) as fileDialog:
+                           style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST) \
+                as fileDialog:
 
             if fileDialog.ShowModal() == wx.ID_CANCEL:
                 return

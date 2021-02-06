@@ -12,5 +12,7 @@ class Nomenclature(Eqbase):
             return at
         return at
 
+
 class Node(Eqbase):
-    pass
+    _name = None
+    id = None

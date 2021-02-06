@@ -12,8 +12,7 @@ class DataView(ViewBase):
     def __init__(self, parent, *args, **kwargs):
         super().__init__(parent, *args, **kwargs)
 
-        self.main_frame = gui.main_frame.MainFrame.getInstance()
-        print("dataview{}".format(self.main_frame))
+        self.main_frame = gui.main_frame.MainFrame.get_instance()
         wx.PostEvent(self.main_frame, SendDataViewInstance(name='DataView', object=self))
         t = threading.Thread(target=self.thread_func(), args=(2,))
 
@@ -21,26 +20,24 @@ class DataView(ViewBase):
         item = self.GetItem(event.GetIndex(), 1).GetText()
         item_test = self.GetItem(event.GetIndex(), 2).GetText()
         wx.PostEvent(self.main_frame, DataViewItemSel(object=queries.nomenclature(visual=True,
-                                                                              identity=item)))
-        print(item_test)
+                                                                                  identity=item)))
 
-
-    def _on_right_click(self, event):
-        item, popupmenu = self.GetItem(event.GetIndex(),
-                                           1).GetText(), wx.Menu()
+    def _on_right_click(self, evt):
+        item, popupmenu = self.GetItem(evt.GetIndex(),
+                                       1).GetText(), wx.Menu()
         entries = {1: 'Edit', 2: 'Delete'}
         for k, v in entries.items():
             menuItem = popupmenu.Append(k, v)
-            wrapper = lambda event: self._action(event, item)
+            wrapper = lambda e: self._action(e)
             self.Bind(wx.EVT_MENU, wrapper, menuItem)
-        self.PopupMenu(popupmenu, event.GetPoint())
+        self.PopupMenu(popupmenu, evt.GetPoint())
 
-    def _action(self, event, item=None):
-        if event.GetId() == 1:
+    def _action(self, evt):
+        if evt.GetId() == 1:
             print('Edit')
             ew = EditWindow(self)
             ew.Show()
-        elif event.GetId() == 2:
+        elif evt.GetId() == 2:
             print('Delete')
 
     def thread_func(self):
@@ -56,10 +53,6 @@ class EditWindow(wx.Frame):
         self.toolbar = wx.ToolBar(self.splitter)
         self.splitter.SplitHorizontally(self.toolbar, self.view, 25)
 
-
-
-
-
         l = ['Бренд',
              'Артикул',
              'Цвет',
@@ -69,11 +62,6 @@ class EditWindow(wx.Frame):
              'Предмет',
              'Номенклатура']
 
-
-
-
-
-
     def draw(self, l):
         q = queries.nomenclature(visual=True, identity=1)[0]
         i = 0
@@ -82,7 +70,6 @@ class EditWindow(wx.Frame):
         for x in range(len(l)):
             z = self.fgSizer.GetItemById(x)
             print(z)
-
 
     def _on_submit(self, event):
         print('_on_submit')

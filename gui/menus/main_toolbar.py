@@ -28,7 +28,7 @@ class MainToolBar(wx.ToolBar):
 class CustomToolBar(wx.Panel):
     def __init__(self, parent):
         import gui.main_frame
-        self.main_frame = gui.main_frame.MainFrame.getInstance()
+        self.main_frame = gui.main_frame.MainFrame.get_instance()
         self.parent = parent
         wx.ToolBar.__init__(self, parent, wx.ID_ANY)
         sizer = wx.BoxSizer(wx.HORIZONTAL)
