@@ -27,3 +27,14 @@ class SelectedItems(ViewBase):
     def _checkall(self, state: bool):
         for x in range(self.GetItemCount()):
             self.CheckItem(x, state)
+
+    def set_sum(self, item, val):
+        for x in item:
+            self.SetItem(x, len(col) + 1, val)
+    @property
+    def get_checked_ids(self):
+        q = []
+        for x in range(self.ItemCount):
+            if self.IsItemChecked(x):
+                q.append(x)
+        return q

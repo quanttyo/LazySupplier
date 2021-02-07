@@ -5,6 +5,7 @@ import gui.main_frame
 from gui.global_events import SendDataViewInstance, DataViewItemSel
 from data.db.storage import queries
 from gui.base.lctrl_base import ViewBase
+from gui.minor_frames.nomenclature_edit import NomenclatureEditWindow
 from gui.test_data import col_db3 as col
 
 
@@ -13,29 +14,29 @@ class DataView(ViewBase):
         super().__init__(parent, *args, **kwargs)
 
         self.main_frame = gui.main_frame.MainFrame.get_instance()
-        wx.PostEvent(self.main_frame, SendDataViewInstance(name='DataView', object=self))
+        wx.PostEvent(self.main_frame, SendDataViewInstance(name='DataView',
+                                                           object=self))
         t = threading.Thread(target=self.thread_func(), args=(2,))
 
     def _on_click(self, event):
         item = self.GetItem(event.GetIndex(), 1).GetText()
-        item_test = self.GetItem(event.GetIndex(), 2).GetText()
-        wx.PostEvent(self.main_frame, DataViewItemSel(object=queries.nomenclature(visual=True,
-                                                                                  identity=item)))
+        wx.PostEvent(self.main_frame, DataViewItemSel(
+            object=queries.nomenclature(visual=True, identity=item)))
 
     def _on_right_click(self, evt):
         item, popupmenu = self.GetItem(evt.GetIndex(),
                                        1).GetText(), wx.Menu()
         entries = {1: 'Edit', 2: 'Delete'}
         for k, v in entries.items():
-            menuItem = popupmenu.Append(k, v)
+            menu_item = popupmenu.Append(k, v)
             wrapper = lambda e: self._action(e)
-            self.Bind(wx.EVT_MENU, wrapper, menuItem)
+            self.Bind(wx.EVT_MENU, wrapper, menu_item)
         self.PopupMenu(popupmenu, evt.GetPoint())
 
     def _action(self, evt):
         if evt.GetId() == 1:
             print('Edit')
-            ew = EditWindow(self)
+            ew = NomenclatureEditWindow(self)
             ew.Show()
         elif evt.GetId() == 2:
             print('Delete')
@@ -44,36 +45,3 @@ class DataView(ViewBase):
         self.set_cols(col)
 
 
-class EditWindow(wx.Frame):
-    def __init__(self, parent):
-        super().__init__(parent, id=wx.ID_ANY, title='Edit frame',
-                         size=(400, 400))
-        self.splitter = wx.SplitterWindow(self, wx.SP_LIVE_UPDATE)
-        self.view = ViewBase(self.splitter)
-        self.toolbar = wx.ToolBar(self.splitter)
-        self.splitter.SplitHorizontally(self.toolbar, self.view, 25)
-
-        l = ['Бренд',
-             'Артикул',
-             'Цвет',
-             'Размер',
-             'Баркод',
-             'Цена',
-             'Предмет',
-             'Номенклатура']
-
-    def draw(self, l):
-        q = queries.nomenclature(visual=True, identity=1)[0]
-        i = 0
-        if 'n_id' in q:
-            del q['n_id']
-        for x in range(len(l)):
-            z = self.fgSizer.GetItemById(x)
-            print(z)
-
-    def _on_submit(self, event):
-        print('_on_submit')
-        print(event.GetId())
-
-    def _on_cancel(self, event):
-        print('_on_cancel')

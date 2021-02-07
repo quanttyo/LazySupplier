@@ -25,7 +25,7 @@ class Data:
 
     def __import_data_xlrd(self, imported: xlrd) -> None:
         data = xlrd.open_workbook(imported.name).sheet_by_index(0)
-        self.indices = self.__get_indices(self.data, self.keywords)
+        self.indices = self.__get_indices(data, self.keywords)
         for x in range(1, data.nrows):
             temp_dict = {}
             for val in self.indices:
@@ -47,7 +47,6 @@ class Data:
     def __write(self):
         pass
 
-    @property
     def verify(self):
         import threading
         t = threading.Thread(target=self.__thread_verify())
@@ -76,7 +75,7 @@ class FileSelection(wx.Frame):
         self.splitter.SplitHorizontally(self.toolbar, self.view, 25)
         self.splitter.SetMinimumPaneSize(25)
         self.splitter.SetSashInvisible(True)
-        self.toolbar.Bind(wx.EVT_BUTTON, self.view.verify, self.toolbar.Order)
+        #self.toolbar.Bind(wx.EVT_BUTTON, self.view.verify, self.toolbar.Order)
 
         self.CenterOnScreen()
         self.SetSize(700, 400)
@@ -92,8 +91,9 @@ class Test(ViewBase):
         self.k.verify()
         self.draw(self.k.content)
 
-    def verify(self, event):
-        pass
+    def draw(self, data: list):
+        for x in data:
+            self._add_line(x, check=True)
 
 
 if __name__ == '__main__':

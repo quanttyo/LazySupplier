@@ -23,7 +23,7 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
 
         self.EnableCheckBoxes(checkboxes)
         if checkboxes:
-            self.InsertColumn(0, '1', width=40)
+            self.InsertColumn(0, '', width=25)
         else:
             self.InsertColumn(0, '', width=1)
 
@@ -33,7 +33,7 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
         self.Bind(wx.EVT_LIST_ITEM_SELECTED, self._on_select)
 
     def draw(self, data: list):
-        self._clearCtrl()
+        self._clear_ctrl()
         for x in data:
             self._add_line(x)
 
@@ -41,7 +41,8 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
         if col == self.GetColumnCount() - 1:
             mixin.TextEditMixin.OpenEditor(self, col, row)
         elif self._checkboxes and col == 0:
-            self.CheckItem(row, True)
+            self.CheckItem(row, True) if not self.IsItemChecked(row) else \
+                self.CheckItem(row, False)
 
     def __on_col_begin_drag(self, event: wx.Event):
         event.Veto()
@@ -72,7 +73,7 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
 
         self._row_index += 1
 
-    def _clearCtrl(self):
+    def _clear_ctrl(self):
         self.DeleteAllItems()
         self._row_index = 0
 
