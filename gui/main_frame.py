@@ -4,7 +4,7 @@ from gui.item_browser import ItemBrowser
 from gui.multi_switch import FitMultiSwitch
 from data.db.storage import queries
 from gui.global_events import EVT_DV_INS, EVT_SV_INS, EVT_TREE_SEL, EVT_DV_SEL, \
-    EVT_SV_CA, EVT_SV_AC
+    EVT_SV_AC
 
 
 class MainFrame(wx.Frame):
@@ -38,7 +38,6 @@ class MainFrame(wx.Frame):
         self.Bind(EVT_SV_INS, self.receiving_an_instance)
         self.Bind(EVT_TREE_SEL, self.tree_item_selected)
         self.Bind(EVT_DV_SEL, self.item_selected)
-        self.Bind(EVT_SV_CA, self.selected_view_checkall)
         self.Bind(EVT_SV_AC, self.selected_view_action)
 
         # Show ourselves
@@ -61,5 +60,12 @@ class MainFrame(wx.Frame):
         self.instances['SelectedItems']._checkall(evt.state)
 
     def selected_view_action(self, evt: wx.Event):
-        value = self.instances['SelectedItems'].get_checked_ids
-        self.instances['SelectedItems'].set_sum(value, str(evt.object))
+        instance = self.instances['SelectedItems']
+        if evt.action == 'checkall':
+            instance._checkall(evt.object)
+        elif evt.action == 'quantity':
+            instance.set_sum(instance.checked_ids, evt.object)
+        elif evt.action == 'make_order':
+            print(instance.checked_values)
+        else:
+            print('SelViewAction: {}'.format(evt.action))

@@ -31,10 +31,21 @@ class SelectedItems(ViewBase):
     def set_sum(self, item, val):
         for x in item:
             self.SetItem(x, len(col) + 1, val)
+
     @property
-    def get_checked_ids(self):
-        q = []
+    def checked_ids(self):
+        items = []
         for x in range(self.ItemCount):
             if self.IsItemChecked(x):
-                q.append(x)
-        return q
+                items.append(x)
+        return items
+
+    @property
+    def checked_values(self):
+        items = []
+        for x in range(self.ItemCount):
+            if self.IsItemChecked(x):
+                items.append([self.GetItem(x, 1).GetText(), # getting id of item
+                          self.GetItem(x, self.ColumnCount-1)
+                         .GetText()]) # getting quantity of item
+        return items

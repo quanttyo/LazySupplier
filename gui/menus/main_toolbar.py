@@ -2,7 +2,7 @@ import wx
 
 import gui.main_frame
 from gui.minor_frames.setquantity import SetQuantity
-from gui.global_events import SelViewCheckAll
+from gui.global_events import SelViewAction
 
 
 
@@ -56,11 +56,17 @@ class CustomToolBar(wx.ToolBar):
         frame.Show()
 
     def f_print(self, evt):
-        print('f_print {}'.format(evt.GetId()))
+        wx.PostEvent(self.main_frame,
+                     SelViewAction(action='print'))
 
     def f_make_order(self, evt):
-        print('f_make_order {}'.format(evt.GetId()))
+        wx.PostEvent(self.main_frame,
+                     SelViewAction(action='make_order'))
 
     def _checkall(self, event):
-        wx.PostEvent(self.main_frame, SelViewCheckAll(
-            state=wx.FindWindowById(id=event.GetId()).Value))
+        wx.PostEvent(self.main_frame,
+                     SelViewAction(action='checkall',
+                                     object=wx.FindWindowById(
+                                         id=event.GetId()).Value))
+
+

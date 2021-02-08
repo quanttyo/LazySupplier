@@ -16,12 +16,12 @@ class SetQuantity(wx.Frame):
         self.control_sizer = wx.BoxSizer()
 
         self.label = wx.StaticText(self, id=wx.ID_ANY,
-                                   label='Количество to all: ')
+                                   label='Установить кол-во: ')
         self.int_ctrl = IntCtrl(self,
                                 id=wx.ID_ANY,
                                 default_color=wx.SystemSettings
                                 .GetColour(wx.SYS_COLOUR_HIGHLIGHTTEXT))
-        self.btn_submit = wx.Button(self, id=101, label='Sumbit')
+        self.btn_submit = wx.Button(self, id=101, label='Submit')
         self.btn_cancel = wx.Button(self, id=102, label='Cancel')
 
         self.btn_submit.Bind(wx.EVT_BUTTON, self.action)
@@ -37,9 +37,8 @@ class SetQuantity(wx.Frame):
 
     def action(self, evt):
         if evt.GetId() == 101:
-            print(self.int_ctrl.GetValue())
-            wx.PostEvent(self.main_frame, SelViewAction(
-                object=self.int_ctrl.GetValue()))
+            wx.PostEvent(self.main_frame, SelViewAction(action='quantity',
+                object= str(self.int_ctrl.GetValue())))
             self.Close()
 
         elif evt.GetId() == 102:
