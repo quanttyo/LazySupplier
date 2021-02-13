@@ -5,7 +5,6 @@ from gui.minor_frames.setquantity import SetQuantity
 from gui.global_events import SelViewAction
 
 
-
 class MainToolBar(wx.ToolBar):
     def __init__(self, parent):
         wx.ToolBar.__init__(self, parent, wx.ID_ANY,
@@ -66,7 +65,5 @@ class CustomToolBar(wx.ToolBar):
     def _checkall(self, event):
         wx.PostEvent(self.main_frame,
                      SelViewAction(action='checkall',
-                                     object=wx.FindWindowById(
-                                         id=event.GetId()).Value))
-
-
+                                   object=wx.FindWindowById(
+                                       id=event.GetId()).Value))

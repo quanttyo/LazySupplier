@@ -11,13 +11,13 @@ from gui.test_data import col_db3 as col
 
 class DataView(ViewBase):
     def __init__(self, parent, *args, **kwargs):
-        super().__init__(parent, *args, **kwargs)
+        super().__init__(parent, id=1901, *args, **kwargs)
 
         self.main_frame = gui.main_frame.MainFrame.get_instance()
         wx.PostEvent(self.main_frame, SendDataViewInstance(name='DataView',
                                                            object=self))
         t = threading.Thread(target=self.thread_func(), args=(2,))
-
+        self.Bind(wx.EVT_NAVIGATION_KEY, self.__change_focus)
     def _on_click(self, event):
         item = self.GetItem(event.GetIndex(), 1).GetText()
         wx.PostEvent(self.main_frame, DataViewItemSel(
@@ -43,5 +43,8 @@ class DataView(ViewBase):
 
     def thread_func(self):
         self.set_cols(col)
+
+    def __change_focus(self, evt):
+        self.FindWindowById(1900, self.main_frame).SetFocus()
 
 

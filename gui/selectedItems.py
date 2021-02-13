@@ -19,6 +19,7 @@ class SelectedItems(ViewBase):
         wx.PostEvent(self.main_frame,
                      SendSelectedViewInstance(
                          name='SelectedItems', object=self))
+        self.Bind(wx.EVT_KEY_DOWN, self._keydown_action)
 
     def _add_line(self, item: dict):
         super()._add_line(item)
@@ -45,7 +46,16 @@ class SelectedItems(ViewBase):
         items = []
         for x in range(self.ItemCount):
             if self.IsItemChecked(x):
-                items.append([self.GetItem(x, 1).GetText(), # getting id of item
-                          self.GetItem(x, self.ColumnCount-1)
-                         .GetText()]) # getting quantity of item
+                items.append(
+                    [self.GetItem(x, 1).GetText(),  # getting id of item
+                     self.GetItem(x, self.ColumnCount - 1).GetText()])
+                # getting quantity of item
         return items
+
+    def _keydown_action(self, evt):
+        if evt.GetKeyCode() == 8:
+            v = self.GetFocusedItem()
+            self.DeleteItem(v)
+            self.Select(v - 1)
+        else:
+            evt.Skip()

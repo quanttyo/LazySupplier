@@ -4,9 +4,9 @@ import wx.lib.mixins.listctrl as mixin
 
 
 class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
-    def __init__(self, parent, editable=False, checkboxes=False,
+    def __init__(self, parent, id=wx.ID_ANY, editable=False, checkboxes=False,
                  *args, **kwargs):
-        super().__init__(parent, id=wx.ID_ANY,
+        super().__init__(parent, id=id,
                          style=wx.LC_REPORT
                                | wx.LC_HRULES
                                | wx.LC_VRULES
@@ -15,12 +15,13 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
         if editable:
             mixin.TextEditMixin.__init__(self)
 
+        self._last_selected_index = None
         self._row_index = 0
         self._editable = editable
         self._checkboxes = checkboxes
         self._keywords = {}
         self._cols = []
-
+        self.SetSingleStyle(style=wx.LC_SINGLE_SEL)
         self.EnableCheckBoxes(checkboxes)
         if checkboxes:
             self.InsertColumn(0, '', width=25)
@@ -36,6 +37,7 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
         self._clear_ctrl()
         for x in data:
             self._add_line(x)
+        self.Select(0)
 
     def OpenEditor(self, col, row):
         if col == self.GetColumnCount() - 1:
@@ -88,3 +90,6 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
             else:
                 self.InsertColumn(x + 1, names[x], width=len(names[x]) * 25,
                                   format=wx.LIST_FORMAT_RIGHT)
+
+
+

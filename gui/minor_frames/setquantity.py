@@ -24,8 +24,9 @@ class SetQuantity(wx.Frame):
         self.btn_submit = wx.Button(self, id=101, label='Submit')
         self.btn_cancel = wx.Button(self, id=102, label='Cancel')
 
-        self.btn_submit.Bind(wx.EVT_BUTTON, self.action)
-        self.btn_cancel.Bind(wx.EVT_BUTTON, self.action)
+        self.btn_submit.Bind(wx.EVT_BUTTON, self._action)
+        self.btn_cancel.Bind(wx.EVT_BUTTON, self._action)
+        self.int_ctrl.Bind(wx.EVT_KEY_DOWN, self._btn_push)
 
         self.data_sizer.Add(self.label)
         self.data_sizer.Add(self.int_ctrl)
@@ -35,11 +36,22 @@ class SetQuantity(wx.Frame):
         self.sizer.Add(self.control_sizer)
         self.SetSizer(self.sizer)
 
-    def action(self, evt):
+    def _action(self, evt):
         if evt.GetId() == 101:
-            wx.PostEvent(self.main_frame, SelViewAction(action='quantity',
-                object= str(self.int_ctrl.GetValue())))
+            wx.PostEvent(self.main_frame, SelViewAction(
+                action='quantity',
+                object=str(
+                    self.int_ctrl.GetValue())))
             self.Close()
-
         elif evt.GetId() == 102:
             self.Close()
+
+    def _btn_push(self, evt):
+        if evt.GetKeyCode() == 13:
+            self.btn_submit.GetEventHandler().ProcessEvent(
+                wx.PyCommandEvent(wx.EVT_BUTTON.typeId,
+                                  self.btn_submit.GetId()))
+        elif evt.GetKeyCode() == 27:
+            self.Close()
+        else:
+            evt.Skip()

@@ -1,14 +1,15 @@
 import wx
 from wx.lib.agw.customtreectrl import CustomTreeCtrl
 from data.db.storage import queries
-from gui.global_events import SendSelectedTree
+from gui.global_events import SendSelectedTree, ChangeFocus
 import gui.main_frame
 
 
 class NavView(CustomTreeCtrl):
     def __init__(self, parent):
-        CustomTreeCtrl.__init__(self, parent, wx.ID_ANY,
-                                agwStyle=wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS)
+        CustomTreeCtrl.__init__(self, parent, id=1900,
+                                agwStyle=wx.TR_HIDE_ROOT | wx.TR_HAS_BUTTONS,
+                                name='nav_view')
         self.AddRoot('root')
         self.add_items()
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.on_sel_changed, self)
@@ -26,7 +27,6 @@ class NavView(CustomTreeCtrl):
 
     def on_sel_changed(self, evt: wx.Event):
         item = evt.GetItem()
-
         if self.get_item_level(item) == 2:
             wx.PostEvent(self.main_frame, SendSelectedTree(
                 object={'item': self.GetItemData(item), 'level': 2}))
@@ -42,5 +42,4 @@ class NavView(CustomTreeCtrl):
             return 2
         elif not self.ItemHasChildren(arg):
             return 3
-
 

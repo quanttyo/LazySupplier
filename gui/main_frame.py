@@ -4,7 +4,8 @@ from gui.item_browser import ItemBrowser
 from gui.multi_switch import FitMultiSwitch
 from data.db.storage import queries
 from gui.global_events import EVT_DV_INS, EVT_SV_INS, EVT_TREE_SEL, EVT_DV_SEL, \
-    EVT_SV_AC
+    EVT_SV_AC, EVT_CHANGE_FOCUS
+
 
 
 class MainFrame(wx.Frame):
@@ -16,6 +17,7 @@ class MainFrame(wx.Frame):
 
     def __init__(self):
         wx.Frame.__init__(self, None, wx.ID_ANY, title="tool",
+                          style=wx.DEFAULT_FRAME_STYLE,
                           size=(1150, 750))
         MainFrame.__instance = self
 
@@ -52,6 +54,7 @@ class MainFrame(wx.Frame):
     def tree_item_selected(self, evt: wx.Event):
         self.instances['DataView'].draw(queries
                                         .nomenclature_query(**evt.object))
+        self.instances['DataView'].SetFocus()
 
     def item_selected(self, evt: wx.Event):
         self.instances['SelectedItems']._add_line(evt.object[0])
@@ -69,3 +72,5 @@ class MainFrame(wx.Frame):
             print(instance.checked_values)
         else:
             print('SelViewAction: {}'.format(evt.action))
+
+
