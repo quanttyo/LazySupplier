@@ -24,3 +24,5 @@ __pycache__/
 *.py[cod]
 *$py.class
 *.pyc
+test.py
+gui/**/test_data.py

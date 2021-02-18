@@ -19,7 +19,7 @@ from data.db.models.nomenclature import Nomenclature
 #     return query
 
 def roots_node(child_id: int = 1) -> list:
-    return Node.roots_node(child_id)
+    return Node.get_pairs(child_id)
 
 
 # def roots(parent: int = 1) -> list:
@@ -29,7 +29,7 @@ def roots_node(child_id: int = 1) -> list:
 #     return query
 
 def roots(parent: int = 1) -> list:
-    return Node.roots(parent)
+    return Node.get_roots(parent)
 
 
 # def get_tree_name_by_id(name: int) -> str:
@@ -112,7 +112,7 @@ def tree_no_children(parent: int) -> bool:
 #     return list(map(lambda item: item._asdict(), query))
 
 def nomenclature(identity: int = -1, visual: bool = True) -> list:
-    return Nomenclature.nomenclature(identity, visual)
+    return Nomenclature.get(identity, visual)
 
 # def nomenclature_query(**kwargs: int) -> list:
 #     """ List of keyword arguments: item -> id of required item, parent ->
@@ -142,7 +142,7 @@ def nomenclature(identity: int = -1, visual: bool = True) -> list:
 #         return []
 
 def nomenclature_query(**kwargs: int) -> list:
-    return Nomenclature.nomenclature_query(**kwargs)
+    return Nomenclature.get_specific(**kwargs)
 
 # def nomenclature_exist_barcode(item: str) -> bool:
 #     query = get_storage_session().query(Nomenclature).filter(
@@ -153,4 +153,4 @@ def nomenclature_query(**kwargs: int) -> list:
 #         return False
 
 def nomenclature_exist_barcode(item: str) -> bool:
-    Nomenclature.nomenclature_exist_barcode(item)
+    Nomenclature.barcode_exist(item)
