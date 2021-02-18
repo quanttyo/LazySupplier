@@ -1,6 +1,6 @@
 import wx
 
-from data.db.storage import queries
+from db.models.nomenclature import Nomenclature
 from gui.base.lctrl_base import ViewBase
 
 
@@ -23,7 +23,7 @@ class NomenclatureEditWindow(wx.Frame):
              'Номенклатура']
 
     def draw(self, l):
-        q = queries.nomenclature(visual=True, identity=1)[0]
+        q = Nomenclature.get(visual=True, identity=1)[0]
         i = 0
         if 'n_id' in q:
             del q['n_id']

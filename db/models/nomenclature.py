@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, desc
+from sqlalchemy import Column, Integer, ForeignKey, String, desc, inspect
 from sqlalchemy.orm import synonym, relationship, aliased
 
-from data.db import Base
-from data.db.models.node import Node
+from db import Base, val_as_dict
+from db.models.node import Node
 
 
 class Nomenclature(Base):
@@ -23,16 +23,16 @@ class Nomenclature(Base):
     art = synonym("n_wb")
 
     def __init__(
-        self,
-        n_id,
-        n_brand,
-        n_article,
-        n_color,
-        n_size,
-        n_barcode,
-        n_price,
-        n_item,
-        n_wb,
+            self,
+            n_id,
+            n_brand,
+            n_article,
+            n_color,
+            n_size,
+            n_barcode,
+            n_price,
+            n_item,
+            n_wb,
     ):
         self.n_id = n_id
         self.n_brand = n_brand
@@ -46,6 +46,15 @@ class Nomenclature(Base):
 
     def __repr__(self):
         return f"Nomenclature {str(self.__dict__)}"
+
+
+    @classmethod
+    def test(cls):
+        query = cls.query(Nomenclature).all()
+        l = []
+        for x in query:
+            l.append(inspect(x).mapper.column_attrs)
+        return query
 
     @classmethod
     def get(cls, identity: int = -1, visual: bool = True) -> list:
@@ -63,8 +72,8 @@ class Nomenclature(Base):
                     n_item.name.label("n_item"),
                     Nomenclature.n_wb,
                 )
-                .join(n_brand, n_brand.id == Nomenclature.n_brand)
-                .join(n_item, n_item.id == Nomenclature.n_item)
+                    .join(n_brand, n_brand.id == Nomenclature.n_brand)
+                    .join(n_item, n_item.id == Nomenclature.n_item)
             )
         else:
             return cls.squery.order_by(desc(Nomenclature.n_id)).all()
@@ -73,7 +82,7 @@ class Nomenclature(Base):
         else:
             query = query.filter(Nomenclature.n_id == identity).all()
 
-        return list(map(lambda item: item._asdict(), query))
+        return list(map(lambda item: val_as_dict(item), query))
 
     @classmethod
     def get_specific(cls, **kwargs: int) -> list:
@@ -94,18 +103,20 @@ class Nomenclature(Base):
                 n_item.name.label("n_item"),
                 Nomenclature.n_wb,
             )
-            .join(n_brand, n_brand.id == Nomenclature.n_brand)
-            .join(n_item, n_item.id == Nomenclature.n_item)
+                .join(n_brand, n_brand.id == Nomenclature.n_brand)
+                .join(n_item, n_item.id == Nomenclature.n_item)
         )
         if kwargs["level"] == 3:
             query = query.filter(
                 Nomenclature.n_brand == kwargs["parent"],
                 Nomenclature.n_item == kwargs["item"],
             )
-            return list(map(lambda item: item._asdict(), query))
+            return list(map(lambda item: val_as_dict(item), query))
+
+
         elif kwargs["level"] == 2:
-            query = query.filter(Nomenclature.n_brand == kwargs["item"])
-            return list(map(lambda item: item._asdict(), query))
+            query = query.filter(Nomenclature.n_brand == kwargs["item"]).all()
+            return list(map(lambda item: val_as_dict(item), query))
         else:
             return []
 

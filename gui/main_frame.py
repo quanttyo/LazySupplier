@@ -2,10 +2,9 @@ import wx
 from gui.menus.main_menubar import MainMenuBar
 from gui.item_browser import ItemBrowser
 from gui.multi_switch import FitMultiSwitch
-from data.db.storage import queries
+from db.models.nomenclature import Nomenclature
 from gui.global_events import EVT_DV_INS, EVT_SV_INS, EVT_TREE_SEL, EVT_DV_SEL, \
-    EVT_SV_AC, EVT_CHANGE_FOCUS
-
+    EVT_SV_AC
 
 
 class MainFrame(wx.Frame):
@@ -52,8 +51,8 @@ class MainFrame(wx.Frame):
         self.instances[evt.name] = evt.object
 
     def tree_item_selected(self, evt: wx.Event):
-        self.instances['DataView'].draw(queries
-                                        .nomenclature_query(**evt.object))
+        self.instances['DataView'].draw(Nomenclature
+                                        .get_specific(**evt.object))
         self.instances['DataView'].SetFocus()
 
     def item_selected(self, evt: wx.Event):

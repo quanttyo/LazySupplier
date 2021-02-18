@@ -26,3 +26,5 @@ __pycache__/
 *.pyc
 test.py
 gui/**/test_data.py
+data
+venv

@@ -1,6 +1,5 @@
 import xlrd
-from data import *
-from data.db.storage import queries
+from db.models.nomenclature import Nomenclature
 import threading
 
 
@@ -40,7 +39,7 @@ class Data:
 
     def __thread_verify(self):
         list(map(lambda d:
-                 d.update({'check': queries.nomenclature_exist_barcode
+                 d.update({'check': Nomenclature.barcode_exist
                  (d['barcode'])}), self.content))
 
     @property

@@ -1,8 +1,8 @@
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, Integer, ForeignKey, String, exc
 from sqlalchemy.orm import synonym, relationship, backref, aliased
 from sqlalchemy.orm.collections import attribute_mapped_collection
-
-from data.db import Base
+from logger import logger
+from db import Base, val_as_dict
 
 
 class Node(Base):
@@ -32,59 +32,66 @@ class Node(Base):
         child_name, child_id
         An default, returns root of the tree."""
         parent, child = aliased(Node), aliased(Node)
-        query = (
-            cls.query(parent.name, child.name, child.id)
-            .join(parent, child.root_id == parent.id)
-            .filter(parent.id == child_id)
-            .all()
-        )
-        return query
+        try:
+            query = (
+                    cls.query(parent.name, child.name, child.id)
+                    .join(parent, child.root_id == parent.id)
+                    .filter(parent.id == child_id)
+                    .all()
+            )
+            return query
+        except exc.SQLAlchemyError as e:
+            logger.error(e)
+
+
+
 
     @classmethod
     def get_roots(cls: classmethod, parent: int = 1):
         p, c = aliased(Node), aliased(Node)
-        query = (
-            cls.query(c.name, c.id)
-            .join(p, c.root_id == p.id)
-            .filter(p.id == parent)
-            .all()
-        )
-        return query
+        try:
+            query = (
+                cls.query(c.name, c.id)
+                .join(p, c.root_id == p.id)
+                .filter(p.id == parent)
+                .all()
+            )
+            return query
+        except exc.SQLAlchemyError as e:
+            logger.error(e)
 
     @classmethod
     def get_tree_name_by_id(cls, name: int) -> str:
         try:
-            return (
-                cls.query(Node.name)
-                .filter(Node.id == str(name))
-                .all()[0]
-                ._asdict()["_name"]
-            )
-        except IndexError:
-            return ""
+            return val_as_dict(cls.s_query.filter(Node.id ==
+                                    int(name)).all()[0])['name']
+        except IndexError as e:
+            return ''
+        except exc.SQLAlchemyError as e:
+            logger(e)
 
     @classmethod
     def get_tree_id_by_name(cls, arg: str) -> int:
         try:
-            return cls.query(Node.id).filter(Node.name == arg) \
-                                     .all()[0]._asdict()["id"]
+            return val_as_dict(cls.query(Node.id).filter(Node.name == arg)
+                               .all()[0])["id"]
         except IndexError:
             return 0
+        except exc.SQLAlchemyError as e:
+            logger(e)
 
     @classmethod
     def add_node(cls, parent: int, name: str) -> tuple:
-        a = Node()
-        a.root_id = parent
-        a._name = name
+        a = cls(name=name, root_id=parent)
         cls.session.add(a)
         cls.session.flush()
-        return a.id, a.name
+        return a.id, a.root_id
 
     @classmethod
     def get_tree_child(cls, arg: id) -> dict:
         try:
-            query = cls.query(Node.id, Node.name)\
-                                      .filter(Node.root_id == str(arg)).all()
+            query = cls.query(Node.id, Node.name) \
+                .filter(Node.root_id == str(arg)).all()
             return dict((y, x) for x, y in query)
         except ValueError:
             return {}

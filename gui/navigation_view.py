@@ -1,9 +1,10 @@
 import wx
 from wx.lib.agw.customtreectrl import CustomTreeCtrl
-from data.db.storage import queries
-from gui.global_events import SendSelectedTree, ChangeFocus
+from db.models.node import Node
+from gui.global_events import SendSelectedTree
 import gui.main_frame
 
+from logger import logger
 
 class NavView(CustomTreeCtrl):
     def __init__(self, parent):
@@ -17,13 +18,16 @@ class NavView(CustomTreeCtrl):
 
     def add_items(self):
         l = []
-        for item in queries.roots_node():
-            l.append(self.AppendItem(self.GetRootItem(), text=item[1],
-                                     data=wx.TreeItemData(item[2])))
-            for _ in l:
-                for item in queries.roots_node(self.GetItemData(_)):
-                    l.append(self.AppendItem(_, text=item[1],
-                                             data=wx.TreeItemData(item[2])))
+        try:
+            for item in Node.get_pairs():
+                l.append(self.AppendItem(self.GetRootItem(), text=item[1],
+                                         data=wx.TreeItemData(item[2])))
+                for _ in l:
+                    for item in Node.get_pairs(self.GetItemData(_)):
+                        l.append(self.AppendItem(_, text=item[1],
+                                                 data=wx.TreeItemData(item[2])))
+        except TypeError:
+            logger.error('cannot create navigation_view tree')
 
     def on_sel_changed(self, evt: wx.Event):
         item = evt.GetItem()

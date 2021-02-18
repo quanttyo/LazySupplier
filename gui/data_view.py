@@ -3,7 +3,7 @@ import wx.lib.scrolledpanel
 import threading
 import gui.main_frame
 from gui.global_events import SendDataViewInstance, DataViewItemSel
-from data.db.storage import queries
+from db.models.nomenclature import Nomenclature
 from gui.base.lctrl_base import ViewBase
 from gui.minor_frames.nomenclature_edit import NomenclatureEditWindow
 from gui.test_data import col_db3 as col
@@ -24,8 +24,8 @@ class DataView(ViewBase):
         item = self.GetItem(event.GetIndex(), 1).GetText()
         wx.PostEvent(
             self.main_frame,
-            DataViewItemSel(object=queries.nomenclature(visual=True,
-                                                        identity=item)),
+            DataViewItemSel(object=Nomenclature.get(visual=True,
+                                               identity=item)),
         )
 
     def _on_right_click(self, evt):
