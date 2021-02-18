@@ -1,6 +1,4 @@
 import xlrd
-import xlwt
-from dataclasses import dataclass
 from data import *
 from data.db.storage import queries
 import threading
@@ -44,6 +42,7 @@ class Data:
         list(map(lambda d:
                  d.update({'check': queries.nomenclature_exist_barcode
                  (d['barcode'])}), self.content))
+
     @property
     def content(self):
         return self.__data
