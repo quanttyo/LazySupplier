@@ -1,8 +1,9 @@
 from __future__ import annotations
-from typing import Generic, TypeVar, Callable
+from typing import Generic, TypeVar, Callable, Any
 
 T = TypeVar('T')
 Value = TypeVar('Value')
+SQLAresult = TypeVar('SQLAresult')
 
 
 class ClassProperty(Generic[T]):
@@ -21,3 +22,11 @@ def classproperty(func):
         func = classmethod(func)
 
     return ClassProperty(func)
+
+
+def asdict(row: SQLAresult) -> dict[str: Any]:
+    result = {}
+    for col in row._fields:
+        result[col] = getattr(row, col)
+
+    return result

@@ -1,40 +1,36 @@
-from sqlalchemy import create_engine, inspect
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from __future__ import annotations
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import as_declarative
+from sqlalchemy.orm import sessionmaker, scoped_session, Session, Query
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy.schema import MetaData
+from typing import Generic, Any, Type, TypeVar, List, Dict
 import threading
 
 import config
+from service.utils import classproperty
+
+T = TypeVar('T')
 
 
-def val_as_dict(obj):
-    return obj._asdict()
-
-
-class _Base(object):
-    metadata = MetaData()
+@as_declarative()
+class Base(Generic[T]):
+    metadata: MetaData = MetaData()
     storage_engine = create_engine(config.engine)
     StorageSession = scoped_session(sessionmaker(bind=storage_engine))
     storage_session = StorageSession()
     storage_sessions = {threading.get_ident(): storage_session}
-    s_query = StorageSession.query_property()
 
     @classmethod
-    @property
-    def query(cls) -> object:
-        return cls._get_storage_session().query
+    def query(cls: Type[Base], *args: InstrumentedAttribute) -> Query:
+        if args:
+            return cls.session.query(*args)
+        else:
+            return cls.session.query(cls)
 
-    @classmethod
-    @property
-    def session(cls) -> object:
-        return cls._get_storage_session()
-
-    @classmethod
-    def _get_storage_session(cls) -> object:
+    @classproperty
+    def session(cls: Type[Base]) -> Session:
         thread_id = threading.get_ident()
         if thread_id not in cls.storage_sessions:
             cls.storage_sessions[thread_id] = cls.StorageSession()
         return cls.storage_sessions[thread_id]
-
-
-Base = declarative_base(cls=_Base)

@@ -10,6 +10,7 @@ from logger import logger
 
 engine = create_engine(db_path)
 
+
 def assert_database_is_up_to_date():
     alembic_cfg = config.Config('alembic.ini')
     script_directory = script.ScriptDirectory.from_config(alembic_cfg)
@@ -38,12 +39,9 @@ def assert_migrations_are_up_to_date():
             return False
 
 
-
 def create_tables(_cls: Base = Base):
     _cls.metadata.create_all(Base.storage_engine)
 
 
 def drop_tables(_cls: Base = Base):
     _cls.metadata.drop_all(Base.storage_engine)
-
-

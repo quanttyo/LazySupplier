@@ -20,15 +20,15 @@ class DataView(ViewBase):
         t = threading.Thread(target=self.thread_func(), args=(2,))
         self.Bind(wx.EVT_NAVIGATION_KEY, self.__change_focus)
 
-    def _on_click(self, event):
-        item = self.GetItem(event.GetIndex(), 1).GetText()
+    def _on_click(self, evt: wx.Event):
+        item = self.GetItem(evt.GetIndex(), 1).GetText()
         wx.PostEvent(
             self.main_frame,
             DataViewItemSel(object=Nomenclature.get(visual=True,
                                                identity=item)),
         )
 
-    def _on_right_click(self, evt):
+    def _on_right_click(self, evt: wx.Event):
         item, popupmenu = self.GetItem(evt.GetIndex(), 1).GetText(), wx.Menu()
         entries = {1: "Edit", 2: "Delete"}
         for k, v in entries.items():
@@ -37,7 +37,7 @@ class DataView(ViewBase):
             self.Bind(wx.EVT_MENU, wrapper, menu_item)
         self.PopupMenu(popupmenu, evt.GetPoint())
 
-    def _action(self, evt):
+    def _action(self, evt: wx.Event):
         if evt.GetId() == 1:
             print("Edit")
             ew = NomenclatureEditWindow(self)

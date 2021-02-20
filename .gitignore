@@ -20,6 +20,7 @@
 .idea/**/mongoSettings.xml
 .idea/**/supp_tool.iml
 .idea_modules/
+.vscode/*
 __pycache__/
 *.py[cod]
 *$py.class

@@ -39,7 +39,7 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
             self._add_line(x)
         self.Select(0)
 
-    def OpenEditor(self, col, row):
+    def OpenEditor(self, col: int, row: int):
         if col == self.GetColumnCount() - 1:
             mixin.TextEditMixin.OpenEditor(self, col, row)
         elif self._checkboxes and col == 0:

@@ -1,8 +1,10 @@
-from sqlalchemy import Column, Integer, ForeignKey, String, desc, inspect
-from sqlalchemy.orm import synonym, relationship, aliased
+from sqlalchemy import Column, Integer, ForeignKey, String, desc
+from sqlalchemy.orm import synonym, relationship, aliased, RelationshipProperty
+from typing import Any, Union
 
-from db import Base, val_as_dict
+from db import Base
 from db.models.node import Node
+from service.utils import asdict
 
 
 class Nomenclature(Base):
@@ -18,22 +20,14 @@ class Nomenclature(Base):
     n_item = Column(Integer, ForeignKey("tree.id"))
     n_wb = Column(String)
     ID = synonym("n_id")
-    brand = relationship("Node", foreign_keys=[n_brand])
-    item = relationship("Node", foreign_keys=[n_item])
     art = synonym("n_wb")
 
-    def __init__(
-            self,
-            n_id,
-            n_brand,
-            n_article,
-            n_color,
-            n_size,
-            n_barcode,
-            n_price,
-            n_item,
-            n_wb,
-    ):
+    brand: RelationshipProperty = relationship("Node", foreign_keys=[n_brand])
+    item: RelationshipProperty = relationship("Node", foreign_keys=[n_item])
+
+    def __init__(self, n_id: int, n_brand: int, n_article: str,
+                 n_color: str, n_size: str, n_barcode: str,
+                 n_price: str, n_item: int, n_wb: str) -> None:
         self.n_id = n_id
         self.n_brand = n_brand
         self.n_article = n_article
@@ -44,20 +38,12 @@ class Nomenclature(Base):
         self.n_item = n_item
         self.n_wb = n_wb
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Nomenclature {str(self.__dict__)}"
 
-
     @classmethod
-    def test(cls):
-        query = cls.query(Nomenclature).all()
-        l = []
-        for x in query:
-            l.append(inspect(x).mapper.column_attrs)
-        return query
-
-    @classmethod
-    def get(cls, identity: int = -1, visual: bool = True) -> list:
+    def get(cls, identity: int = -1, visual: bool = True) -> \
+            list[dict[str, Union[str, int]]]:
         n_brand, n_item = aliased(Node), aliased(Node)
         if visual:
             query = (
@@ -70,22 +56,23 @@ class Nomenclature(Base):
                     Nomenclature.n_barcode,
                     Nomenclature.n_price,
                     n_item.name.label("n_item"),
-                    Nomenclature.n_wb,
+                    Nomenclature.n_wb
                 )
-                    .join(n_brand, n_brand.id == Nomenclature.n_brand)
-                    .join(n_item, n_item.id == Nomenclature.n_item)
+                .join(n_brand, n_brand.id == Nomenclature.n_brand)
+                .join(n_item, n_item.id == Nomenclature.n_item)
             )
         else:
-            return cls.squery.order_by(desc(Nomenclature.n_id)).all()
+            return cls.query().order_by(desc(Nomenclature.n_id)).all()
         if identity == -1:
             query = query.order_by(desc(Nomenclature.n_id)).all()
         else:
             query = query.filter(Nomenclature.n_id == identity).all()
 
-        return list(map(lambda item: val_as_dict(item), query))
+        return list(map(lambda item: asdict(item), query))
 
     @classmethod
-    def get_specific(cls, **kwargs: int) -> list:
+    def get_specific(cls, **kwargs: dict[str, Any]) -> \
+            list[dict[str, Union[str, int]]]:
         """List of keyword arguments: item -> id of required item, parent ->
         id of parent (specify of 3 item level),
         level -> level of the item in the hierarchy,
@@ -103,26 +90,24 @@ class Nomenclature(Base):
                 n_item.name.label("n_item"),
                 Nomenclature.n_wb,
             )
-                .join(n_brand, n_brand.id == Nomenclature.n_brand)
-                .join(n_item, n_item.id == Nomenclature.n_item)
+            .join(n_brand, n_brand.id == Nomenclature.n_brand)
+            .join(n_item, n_item.id == Nomenclature.n_item)
         )
-        if kwargs["level"] == 3:
-            query = query.filter(
-                Nomenclature.n_brand == kwargs["parent"],
-                Nomenclature.n_item == kwargs["item"],
-            )
-            return list(map(lambda item: val_as_dict(item), query))
+        if kwargs['level'] == 2:
+            query = query.filter(Nomenclature.n_brand == kwargs['item']).all()
+            return list(map(lambda item: asdict(item), query))
 
-
-        elif kwargs["level"] == 2:
-            query = query.filter(Nomenclature.n_brand == kwargs["item"]).all()
-            return list(map(lambda item: val_as_dict(item), query))
+        elif kwargs['level'] == 3:
+            query = query.filter(Nomenclature.n_brand == kwargs['parent'],
+                                 Nomenclature.n_item == kwargs['item'],
+                                 )
+            return list(map(lambda item: asdict(item), query))
         else:
             return []
 
     @classmethod
     def barcode_exist(cls, item: str) -> bool:
-        query = cls.squery.filter(Nomenclature.n_barcode == item).all()
+        query = cls.query().filter(Nomenclature.n_barcode == item).all()
         if query:
             return True
         else:

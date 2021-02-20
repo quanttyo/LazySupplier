@@ -23,9 +23,9 @@ class NavView(CustomTreeCtrl):
                 l.append(self.AppendItem(self.GetRootItem(), text=item[1],
                                          data=wx.TreeItemData(item[2])))
                 for _ in l:
-                    for item in Node.get_pairs(self.GetItemData(_)):
-                        l.append(self.AppendItem(_, text=item[1],
-                                                 data=wx.TreeItemData(item[2])))
+                    for x in Node.get_pairs(self.GetItemData(_)):
+                        l.append(self.AppendItem(_, text=x[1],
+                                                 data=wx.TreeItemData(x[2])))
         except TypeError:
             logger.error('cannot create navigation_view tree')
 

@@ -1,6 +1,6 @@
 import wx.aui
 from gui.data_view import DataView
-from gui.selectedItems import SelectedItems
+from gui.selected_items import SelectedItems
 from gui.menus.main_toolbar import CustomToolBar
 
 
