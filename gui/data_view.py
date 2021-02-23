@@ -2,7 +2,7 @@ import wx
 import wx.lib.scrolledpanel
 import threading
 import gui.main_frame
-from gui.global_events import SendDataViewInstance, DataViewItemSel
+from gui.global_events import SendDataViewInstance, DataViewItemSel, Selected
 from db.models.nomenclature import Nomenclature
 from gui.base.lctrl_base import ViewBase
 from gui.minor_frames.nomenclature_edit import NomenclatureEditWindow
@@ -50,3 +50,11 @@ class DataView(ViewBase):
 
     def __change_focus(self, evt):
         self.FindWindowById(1900, self.main_frame).SetFocus()
+
+    def _on_select(self, event: wx.Event):
+        item = self.GetItem(event.GetIndex(), 1).GetText()
+        nomenclature = self.GetItem(event.GetIndex(), 9).GetText()
+        print(item, nomenclature)
+        # if self._editable:
+        #     self.OnItemSelected(event)
+        wx.PostEvent(self.main_frame, Selected(id=item, nomenclature=nomenclature))

@@ -56,10 +56,7 @@ class ViewBase(wx.ListCtrl, mixin.TextEditMixin, mixin.ListRowHighlighter):
         pass
 
     def _on_select(self, event: wx.Event):
-        item = self.GetItem(event.GetIndex(), 1).GetText()
-        print(item)
-        if self._editable:
-            self.OnItemSelected(event)
+        pass
 
     def _add_line(self, item: dict, check=False):
         self.InsertItem(self._row_index, "")

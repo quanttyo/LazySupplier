@@ -4,7 +4,9 @@ from gui.item_browser import ItemBrowser
 from gui.multi_switch import FitMultiSwitch
 from db.models.nomenclature import Nomenclature
 from gui.global_events import EVT_DV_INS, EVT_SV_INS, EVT_TREE_SEL, EVT_DV_SEL, \
-    EVT_SV_AC
+    EVT_SV_AC, EVT_IP_INS, EVT_SEL
+
+import threading
 
 
 class MainFrame(wx.Frame):
@@ -37,9 +39,11 @@ class MainFrame(wx.Frame):
         self.instances = {}
         self.Bind(EVT_DV_INS, self.receiving_an_instance)
         self.Bind(EVT_SV_INS, self.receiving_an_instance)
+        self.Bind(EVT_IP_INS, self.receiving_an_instance)
         self.Bind(EVT_TREE_SEL, self.tree_item_selected)
         self.Bind(EVT_DV_SEL, self.item_selected)
         self.Bind(EVT_SV_AC, self.selected_view_action)
+        self.Bind(EVT_SEL, self.selected)
 
         # Show ourselves
         self.Show()
@@ -71,5 +75,10 @@ class MainFrame(wx.Frame):
             print(instance.checked_values)
         else:
             print('SelViewAction: {}'.format(evt.action))
+
+    def selected(self, evt):
+        self.instances['InfoPane'].id.SetLabelText(evt.id)
+        self.instances['InfoPane'].nomenclature.SetLabelText(evt.nomenclature)
+        self.instances['InfoPane'].set_image(evt.nomenclature)
 
 
