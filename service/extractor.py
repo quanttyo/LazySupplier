@@ -1,17 +1,12 @@
 import requests
-import bs4
+from bs4 import BeautifulSoup
 import os
-from config import cache
 from urllib.request import urlopen
 from io import BytesIO
-import threading
-
-settings = {'headers': {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.9; rv:45.0) '
-                  'Gecko/20100101 Firefox/45.0'},
-    'url': 'https://www.wildberries.ru/catalog/{}/detail.aspx',
-    'class': 'preview-photo j-zoom-preview'
-}
+from itertools import chain
+from pickle import load, dumps, HIGHEST_PROTOCOL
+from config import Config
+from typing import Union
 
 
 class Extractor(object):
@@ -19,39 +14,55 @@ class Extractor(object):
     _content = None
 
     def __init__(self, target):
-        if not os.path.exists(cache):
-            os.mkdir(cache)
+        if not os.path.exists(Config.cache):
+            os.mkdir(Config.cache)
 
-        if os.path.exists(os.path.join(cache, f'{target}.jpg')):
-            self._image = os.path.join(cache, f'{target}.jpg')
-            self._content = open(f'{cache}/{target}.content', 'r')
+        if os.path.exists(os.path.join(Config.cache, f'{target}.jpg')):
+            self._image = os.path.join(Config.cache, f'{target}.jpg')
+            self._content = f'{Config.cache}/{target}.pickle'
         else:
-            r = bs4.BeautifulSoup(requests.get(settings['url'].format(target),
-                                               settings['headers']).text,
-                                  features='html.parser')
-            self._content = open(f'{cache}/{target}.content', 'w+')
-            self._image = open(f'{cache}/{target}.jpg', 'wb+')
-            self._content.write(str([str(x) for x in
-                                     self.get_item_attributes(r)]))
-            self._image.write(BytesIO(urlopen(
-                self.item_image(r)).read()).getbuffer())
-            self._image = self._image.name
+            r = BeautifulSoup(
+                requests.get(Config.ex_params['url'].format(target),
+                             Config.ex_params['headers']).text,
+                features='html.parser')
+            if self.item_image(r):
+                self._content = open(f'{Config.cache}/{target}.pickle', 'wb+')
+                self._content.write(dumps(self.get_item_attributes(r),
+                                          protocol=HIGHEST_PROTOCOL))
+                self._content = self._content.name
 
+                self._image = open(f'{Config.cache}/{target}.jpg', 'wb+')
+                self._image.write(
+                    BytesIO(urlopen(self.item_image(r)).read()).getbuffer())
+                self._image = self._image.name
+            else:
+                self._image = f'{Config.assets}/placeholder.jpg'
+                self._content = None
 
-    def item_image(self, content):
-        return f"http:{content.find('img', {'class': settings['class']})['src']}"
+    @staticmethod
+    def item_image(content) -> Union[str, bool]:
+        image = content.find('img', {'class': Config.ex_params['class']})
+        return f'http:{image["src"]}' if image else False
 
-    def get_item_attributes(self, content):
-        return content.find('div', {
-            'class': 'j-add-info-section collapsable-content'})
+    @staticmethod
+    def get_item_attributes(content: BeautifulSoup) -> dict:
+        value = content.find('div', {
+            'class': 'j-add-info-section '
+                     'collapsable-content'}).find_all('div', {'class': 'pp'})
+        filtered = list(filter(None,
+                               chain(*[item.get_text()
+                                     .split('\n') for item in
+                                       value])))
+        return dict(zip(filtered[::2], filtered[1::2]))
 
     @property
-    def image(self):
+    def image(self) -> str:
         return self._image
 
     @property
-    def content(self):
-        return self._content.read()
+    def content(self) -> dict:
+        with open(self._content, 'rb') as handle:
+            return load(handle)
 
     def __repr__(self):
         return f'{self._image, self._content}'

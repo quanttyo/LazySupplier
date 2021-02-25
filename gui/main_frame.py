@@ -25,7 +25,7 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(MainMenuBar())
         # Arrangement of left side of mainFrame,
         # instances of ItemBrowser and MultiSwitch
-        self.splitter = wx.SplitterWindow(self, style=wx.SP_LIVE_UPDATE)
+        self.splitter = wx.SplitterWindow(self, style=wx.SP_LIVE_UPDATE | wx.SP_BORDER)
         self.item_browser = ItemBrowser(self.splitter)
         self.fitMultiSwitch = FitMultiSwitch(self.splitter)
         self.fitMultiSwitch.add_tab()
@@ -77,8 +77,8 @@ class MainFrame(wx.Frame):
             print('SelViewAction: {}'.format(evt.action))
 
     def selected(self, evt):
-        self.instances['InfoPane'].id.SetLabelText(evt.id)
-        self.instances['InfoPane'].nomenclature.SetLabelText(evt.nomenclature)
-        self.instances['InfoPane'].set_image(evt.nomenclature)
+        # self.instances['InfoPane'].id.SetLabelText(evt.id)
+        # self.instances['InfoPane'].nomenclature.SetLabelText(evt.nomenclature)
+        self.instances['InfoPane'].set_preview(evt.nomenclature)
 
 

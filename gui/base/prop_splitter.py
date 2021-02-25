@@ -3,14 +3,14 @@ import wx
 
 class PSplitter(wx.SplitterWindow):
     def __init__(self, parent, id=-1, proportion=0.5, size=wx.DefaultSize,
-                 minimum_pane_size=20):
+                 minimum_pane_size=20, style=wx.SP_LIVE_UPDATE):
         """ wx.SplitterWindow with size propotion
             PSplitter(self, parent, window_id, proportion,
             size, minimum_pane_size)
         """
         wx.SplitterWindow.__init__(self, parent, id=id,
                                    pos=wx.DefaultPosition,
-                                   size=size, style=wx.SP_LIVE_UPDATE)
+                                   size=size, style=style)
 
         self.SetMinimumPaneSize(minimum_pane_size)
         self.proportion = proportion

@@ -1,13 +1,15 @@
 import wx
 import wx.lib.scrolledpanel
 import threading
+
 import gui.main_frame
 from gui.global_events import SendDataViewInstance, DataViewItemSel, Selected
-from db.models.nomenclature import Nomenclature
 from gui.base.lctrl_base import ViewBase
 from gui.minor_frames.nomenclature_edit import NomenclatureEditWindow
 from gui.test_data import col_db3 as col
 
+from db.models.nomenclature import Nomenclature
+from logger import logger
 
 class DataView(ViewBase):
     def __init__(self, parent, *args, **kwargs):
@@ -30,7 +32,7 @@ class DataView(ViewBase):
 
     def _on_right_click(self, evt: wx.Event):
         item, popupmenu = self.GetItem(evt.GetIndex(), 1).GetText(), wx.Menu()
-        entries = {1: "Edit", 2: "Delete"}
+        entries = {1: 'Edit', 2: 'Delete', 3: 'Copy'}
         for k, v in entries.items():
             menu_item = popupmenu.Append(k, v)
             wrapper = lambda e: self._action(e)
@@ -44,6 +46,10 @@ class DataView(ViewBase):
             ew.Show()
         elif evt.GetId() == 2:
             print("Delete")
+        elif evt.GetId() == 3:
+            from gui.base.clipboard import to_clipboard
+            to_clipboard(self.GetItem(self.GetFocusedItem(), 9).GetText())
+            logger.debug('copied to clipboard')
 
     def thread_func(self):
         self.set_cols(col)
@@ -54,7 +60,7 @@ class DataView(ViewBase):
     def _on_select(self, event: wx.Event):
         item = self.GetItem(event.GetIndex(), 1).GetText()
         nomenclature = self.GetItem(event.GetIndex(), 9).GetText()
-        print(item, nomenclature)
-        # if self._editable:
-        #     self.OnItemSelected(event)
-        wx.PostEvent(self.main_frame, Selected(id=item, nomenclature=nomenclature))
+        logger.debug(f'Selected={item=},'
+                     f' {nomenclature=}')
+        wx.PostEvent(self.main_frame, Selected(id=item,
+                                               nomenclature=nomenclature))
